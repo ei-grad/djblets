@@ -60,11 +60,13 @@ def get_gravatar_url_for_email(request, email, size=None):
     return url
 
 
-def get_gravatar_url(request, user, size=None):
-    from django.conf import settings
+if getattr(settings, 'CUSTOM_GET_GRAVATAR_URL') is not None:
+    get_gravatar_url = settings.CUSTOM_GET_GRAVATAR_URL
+else:
+    def get_gravatar_url(request, user, size=None):
 
-    if user.is_anonymous() or not user.email:
-        return ""
+        if user.is_anonymous() or not user.email:
+            return ""
 
-    email = user.email.strip().lower()
-    return get_gravatar_url_for_email(request, email, size)
+        email = user.email.strip().lower()
+        return get_gravatar_url_for_email(request, email, size)
