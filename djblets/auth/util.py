@@ -36,6 +36,13 @@ from djblets.util.dates import get_tz_aware_utcnow
 from djblets.util.decorators import simple_decorator
 
 
+if settings.CUSTOM_LOGIN_REDIRECT:
+    get_login_redirect = settings.CUSTOM_LOGIN_REDIRECT
+else:
+    def get_login_redirect(request):
+        return '%s?next_page=%s' % (settings.LOGIN_URL, request.path)
+
+
 @simple_decorator
 def login_required(view_func):
     """Simplified version of auth.decorators.login_required,
@@ -46,8 +53,7 @@ def login_required(view_func):
         if request.user.is_authenticated():
             return view_func(request, *args, **kwargs)
         else:
-            return HttpResponseRedirect('%s?next_page=%s' % \
-                (settings.LOGIN_URL, request.path))
+            return HttpResponseRedirect(get_login_redirect(request))
     return _checklogin
 
 def get_user(username):
